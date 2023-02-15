@@ -1,8 +1,7 @@
-from flask import Flask, jsonify, request
 import pandas as pd
+from flask import Flask, jsonify, request
 
 users = pd.read_csv("users.csv", sep=";")
-
 
 app = Flask(__name__)
 
@@ -13,7 +12,7 @@ def ping():
 
 
 @app.route("/users", methods=["GET"])
-def getAllUsers():
+def get_all_users():
     result = [user for user in users.to_dict("records")]
     response = jsonify({"result": "OK", "users": result})
     response.status_code = 200
@@ -22,18 +21,17 @@ def getAllUsers():
 
 
 @app.route("/users", methods=["POST"])
-def insertUser():
-
+def insert_user():
     global users
-    
-    id = int(users.id.max() + 1)
+
+    id_user = int(users.id.max() + 1)
     email = ""
     password = ""
     name = ""
     country = ""
 
     if "id" in request.json:
-        id = request.json["id"]
+        id_user = request.json["id"]
 
     if "email" in request.json:
         email = request.json["email"]
@@ -48,17 +46,14 @@ def insertUser():
         country = request.json["country"]
 
     user = {
-        "id": id,
+        "id": id_user,
         "email": email,
         "password": password,
         "name": name,
         "country": country
     }
 
-    
-    
     users = users.append(user, ignore_index=True)
-    
 
     response = jsonify({"result": "OK", "user": user})
     response.status_code = 200
@@ -66,9 +61,10 @@ def insertUser():
     return response
 
 
-@app.route("/users/<int:id>", methods=["GET"])
-def getUserById(id: int):
-    result = users[users["id"] == id].to_dict("record")
+@app.route("/users/<int:id_user>", methods=["GET"])
+def get_user_by_id(id_user: int):
+    x = users[users["id"] == id_user]
+    result = x.to_dict("records")
     if len(result):
         response = jsonify({"result": "OK", "user": result[0]})
     else:
