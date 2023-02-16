@@ -1,5 +1,13 @@
-import pandas as pd
 import json
+
+import pandas as pd
+
+from UserRepository import User, UserRepository
+
+u = User(name="juanra", email="hola@ya.com", password="hola", country="españa")
+
+userRepository = UserRepository()
+userRepository.upsert(User())
 
 # users = pd.read_csv("users.csv", sep=";", index_col="id")
 users = pd.read_csv("users.csv", sep=";")
@@ -24,4 +32,3 @@ print(x)
 print("y")
 csv_json = pd.read_json(users_db_json)
 csv_json.to_csv("users.csv", sep=";", index=False)
-
