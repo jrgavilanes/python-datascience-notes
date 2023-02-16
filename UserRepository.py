@@ -4,6 +4,16 @@ import uuid
 import pandas as pd
 
 
+# DEFAULT_VALUES = {
+#     "email": "",
+#     "password": "",
+#     "name": "",
+#     "country": ""
+# }
+# user_data = request.get_json()
+# # user = {field: user_data.get(field, default) for field, default in DEFAULT_VALUES.items()}
+
+
 class User:
     def __init__(self, user_id=uuid.UUID, name="", email="", password="", country=""):
         self.id = user_id
