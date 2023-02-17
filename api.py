@@ -1,14 +1,8 @@
-import pandas as pd
 from flask import Flask, jsonify, request
 
-users = pd.read_csv("users.csv", sep=";", index_col="id")
+from UserRepository import UserRepository, user_default_values, User
 
-DEFAULT_VALUES = {
-    "email": "",
-    "password": "",
-    "name": "",
-    "country": ""
-}
+userRepository = UserRepository(csv_file="users.csv")
 
 app = Flask(__name__)
 
@@ -20,100 +14,60 @@ def ping():
 
 @app.route("/users", methods=["GET"])
 def get_all_users():
-    result = users.reset_index().to_dict("records")
-    response = jsonify({"result": "OK", "users": result})
-    response.status_code = 200
-    return response
+    result = userRepository.get_all_records()
+    return jsonify({"result": "OK", "users": result}), 200
 
 
-@app.route("/users", methods=["POST"])
-def insert_user():
-    # global users
-    #
-    # id_user = int(users.id.max() + 1)
-    # email = ""
-    # password = ""
-    # name = ""
-    # country = ""
-    #
-    # if "id" in request.json:
-    #     id_user = request.json["id"]
-    #
-    # if "email" in request.json:
-    #     email = request.json["email"]
-    #
-    # if "password" in request.json:
-    #     password = request.json["password"]
-    #
-    # if "name" in request.json:
-    #     name = request.json["name"]
-    #
-    # if "country" in request.json:
-    #     country = request.json["country"]
-    #
-    # user = {
-    #     "id": id_user,
-    #     "email": email,
-    #     "password": password,
-    #     "name": name,
-    #     "country": country
-    # }
-    #
-    # users = users.append(user, ignore_index=True)
-    #
-    # response = jsonify({"result": "OK", "user": user})
-    # response.status_code = 200
-    #
-    # return response
+@app.route("/users", methods=["POST", "PUT"])
+def upsert_user():
+    try:
+        # Obtener los valores de los campos del cuerpo de la solicitud
+        user_data = request.get_json()
+        user = {field: user_data.get(field, default) for field, default in user_default_values().items()}
 
-    global users
+        if user["id"] is None and request.method == "POST":
+            user["id"] = userRepository.get_next_id()
 
-    # Obtener los valores de los campos del cuerpo de la solicitud
-    user_data = request.get_json()
-    user = {field: user_data.get(field, default) for field, default in DEFAULT_VALUES.items()}
+        new_user = User(user_id=user["id"],
+                        name=user["name"],
+                        email=user["email"],
+                        password=user["password"],
+                        country=user["country"]
+                        )
 
-    # Si no se informa id, generar el id del usuario
-    # if "id" in user_data:
-    #     user["id"] = user_data["id"]
-    # else:
-    #     user["id"] = users["id"].max() + 1
-    # user["id"] = user_data.get("id", users["id"].max() + 1)
+        userRepository.upsert(new_user)
 
-    if "id" not in user:
-        max_id = users.index.tolist()[-1]
-        user["id"] = max_id + 1
+        return jsonify({"result": "OK", "body": new_user.to_dict()}), 200
 
-    # Agregar el usuario al DataFrame de usuarios
-
-    users = users.append(user, ignore_index=True)
-
-    # Crear la respuesta
-    response = jsonify({"result": "OK", "user": user})
-    response.status_code = 200
-
-    return response
+    except Exception as e:
+        return jsonify({"result": "KO", "body": str(e)}), 400
 
 
 @app.route("/users/<int:id_user>", methods=["GET"])
 def get_user_by_id(id_user: int):
-    if id_user in users.index:
-        result = users.loc[id_user].to_dict()
-        result["id"] = id_user
-        response = jsonify({"result": "OK", "user": result})
-        response.status_code = 200
+    result = userRepository.get_by_id(id_user)
+    if result:
+        return jsonify({"result": "OK", "body": result}), 200
     else:
-        response = jsonify({"result": "KO", "message": "Not found"})
-        response.status_code = 404
-    return response
+        return jsonify({"result": "KO", "body": []}), 404
 
 
 @app.route("/users/<int:id_user>", methods=["DELETE"])
 def delete_user(id_user: int):
-    if id_user in users.index:
-        users.drop(id_user, inplace=True)
-        return jsonify({"result": "OK", "message": "User deleted"}), 200
+    result = userRepository.delete_by_id(id_user)
+    if result:
+        return jsonify({"result": "OK", "body": result}), 200
     else:
-        return jsonify({"result": "KO", "message": "Not found"}), 404
+        return jsonify({"result": "KO", "body": []}), 404
+
+
+@app.route("/users/commit", methods=["GET"])
+def commit_users():
+    is_ok, error_message = userRepository.commit()
+    if is_ok:
+        return jsonify({"result": "OK", "body": "saved ok"}), 200
+    else:
+        return jsonify({"result": "KO", "body": error_message}), 500
 
 
 if __name__ == '__main__':
