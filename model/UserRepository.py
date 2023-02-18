@@ -2,7 +2,7 @@ import json
 
 import pandas as pd
 
-users_path_file = "users.csv"
+users_path_file = "../database/users.csv"
 file_separator = ";"
 
 
@@ -59,21 +59,21 @@ class UserRepository:
         for user in self.users_pd.to_dict("records"):
             self.users[user["id"]] = user
 
-    def get_next_id(self):
+    def get_next_id(self) -> int:
         return max(self.users.keys()) + 1
 
-    def get_by_id(self, record_id: int):
+    def get_by_id(self, record_id: int) -> dict:
         if record_id in self.users:
             return self.users[record_id].copy()
         return None
 
-    def get_all_records(self):
+    def get_all_records(self) -> dict:
         return self.users.copy()
 
-    def upsert(self, user: User):
+    def upsert(self, user: User) -> None:
         self.users[user.id] = user.to_dict()
 
-    def delete_by_id(self, record_id: int):
+    def delete_by_id(self, record_id: int) -> int:
         if record_id in self.users:
             del self.users[record_id]
             return record_id

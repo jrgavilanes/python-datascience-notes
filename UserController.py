@@ -1,13 +1,15 @@
+from model.UserRepository import UserRepository
+from domain.UserUseCase import UserUseCase
+from config import users_csv_filepath
+
 try:
     from __main__ import app
 except:
-    from api import app
+    from main import app
 
 from flask import jsonify, request
 
-from UserRepository import UserRepository, User, user_default_values
-
-userRepository = UserRepository(csv_file="users.csv")
+userUseCase = UserUseCase(user_repository=UserRepository(csv_file=users_csv_filepath))
 
 
 @app.route("/", methods=["GET"])
@@ -17,7 +19,7 @@ def ping():
 
 @app.route("/users", methods=["GET"])
 def get_all_users():
-    result = userRepository.get_all_records()
+    result = userUseCase.get_all_records()
     return jsonify({"result": "OK", "users": result}), 200
 
 
@@ -26,19 +28,7 @@ def upsert_user():
     try:
         # Obtener los valores de los campos del cuerpo de la solicitud
         user_data = request.get_json()
-        user = {field: user_data.get(field, default) for field, default in user_default_values().items()}
-
-        if user["id"] is None and request.method == "POST":
-            user["id"] = userRepository.get_next_id()
-
-        new_user = User(user_id=user["id"],
-                        name=user["name"],
-                        email=user["email"],
-                        password=user["password"],
-                        country=user["country"]
-                        )
-
-        userRepository.upsert(new_user)
+        new_user = userUseCase.upsert(user_data, request.method)
 
         return jsonify({"result": "OK", "body": new_user.to_dict()}), 200
 
@@ -48,7 +38,7 @@ def upsert_user():
 
 @app.route("/users/<int:id_user>", methods=["GET"])
 def get_user_by_id(id_user: int):
-    result = userRepository.get_by_id(id_user)
+    result = userUseCase.get_by_id(id_user)
     if result:
         return jsonify({"result": "OK", "body": result}), 200
     else:
@@ -57,7 +47,7 @@ def get_user_by_id(id_user: int):
 
 @app.route("/users/<int:id_user>", methods=["DELETE"])
 def delete_user(id_user: int):
-    result = userRepository.delete_by_id(id_user)
+    result = userUseCase.delete_by_id(id_user)
     if result:
         return jsonify({"result": "OK", "body": result}), 200
     else:
@@ -66,7 +56,7 @@ def delete_user(id_user: int):
 
 @app.route("/users/commit", methods=["GET"])
 def commit_users():
-    is_ok, error_message = userRepository.commit()
+    is_ok, error_message = userUseCase.commit()
     if is_ok:
         return jsonify({"result": "OK", "body": "saved ok"}), 200
     else:
