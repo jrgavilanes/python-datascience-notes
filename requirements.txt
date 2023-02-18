@@ -1,4 +1,4 @@
 ipython
 numpy
-pandas
-flask
+pandas~=1.5.3
+flask~=2.2.2
