@@ -10,7 +10,7 @@ def test_ping():
     assert "ve a /users" == result["body"]
 
 
-def test_insert_update_delete_user():
+def test_insert_update_list_delete_user():
     # Get all users
     response = requests.get("http://localhost:4000/users")
     result = json.loads(response.text)
@@ -79,4 +79,17 @@ def test_insert_update_delete_user():
 
     # I cannot delete it twice
     response = requests.delete(f"http://localhost:4000/users/{id_new_user}")
+    assert response.status_code == 404
+
+    # the deleted user does not appear in the total users list anymore
+    response = requests.get("http://localhost:4000/users")
+    result = json.loads(response.text)
+    result = result["body"]
+    assert response.status_code == 200
+    keys = set(result.keys())
+    assert id_new_user not in result.keys()
+
+    # Detail of the deleted user is not found
+    response = requests.get(f"http://localhost:4000/users/{id_new_user}")
+    result = json.loads(response.text)
     assert response.status_code == 404
