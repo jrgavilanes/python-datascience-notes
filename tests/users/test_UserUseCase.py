@@ -65,10 +65,9 @@ class TestUserUseCase(unittest.TestCase):
     def test_commit(self):
         csv_file = 'test.csv'
         sep = ','
-        self.user_repository.commit.return_value = (True, 'Records saved successfully.')
-        success, message = self.userUseCase.commit(csv_file, sep)
-        self.assertTrue(success)
-        self.assertEqual(message, 'Records saved successfully.')
+        self.user_repository.commit.return_value = 'Records saved successfully.'
+        message = self.userUseCase.commit(csv_file, sep)
+        self.assertEqual(message, 'Records requested to be saved.')
 
 
 if __name__ == '__main__':

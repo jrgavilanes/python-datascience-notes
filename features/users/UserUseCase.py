@@ -38,5 +38,6 @@ class UserUseCase:
     def delete_by_id(self, record_id: int) -> int:
         return self.userRepository.delete_by_id(record_id=record_id)
 
-    def commit(self, csv_file=None, sep=None):
+    def commit(self, csv_file=None, sep=None) -> str:
         self.userRepository.commit(csv_file=csv_file, sep=sep)
+        return "Records requested to be saved."

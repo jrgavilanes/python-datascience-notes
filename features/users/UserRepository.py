@@ -3,8 +3,7 @@ import threading
 
 import pandas as pd
 
-users_path_file = "../../database/users.csv"
-file_separator = ";"
+from config import users_csv_filepath, file_separator
 
 
 def user_default_values() -> dict:
@@ -52,7 +51,7 @@ class UserModel:
 
 
 class UserRepository:
-    def __init__(self, csv_file=users_path_file, sep=file_separator):
+    def __init__(self, csv_file=users_csv_filepath, sep=file_separator):
         self.csv_file = csv_file
         self.sep = sep
         self.users = {}
@@ -61,7 +60,7 @@ class UserRepository:
             for user in self.users_pd.to_dict("records"):
                 self.users[user["id"]] = user
 
-        except FileNotFoundError as e:
+        except FileNotFoundError:
             print(f"Warning: file {csv_file} does not exist. Loading empty data into memory")
         except Exception as e:
             print(f"Warning: {str(e)} Loading empty data into memory")
