@@ -1,6 +1,4 @@
-from model.UserRepository import UserRepository, User, user_default_values
-
-# userRepository = UserRepository(csv_file="users.csv")
+from features.users.UserRepository import UserRepository, UserModel, user_default_values
 
 
 class UserUseCase:
@@ -19,19 +17,19 @@ class UserUseCase:
     def get_all_records(self) -> dict:
         return self.userRepository.get_all_records()
 
-    def upsert(self, user_data: dict, request_method: str) -> User:
+    def upsert(self, user_data: dict, request_method: str) -> UserModel:
 
         user = {field: user_data.get(field, default) for field, default in user_default_values().items()}
 
         if user["id"] is None and request_method == "POST":
             user["id"] = self.userRepository.get_next_id()
 
-        new_user = User(user_id=user["id"],
-                        name=user["name"],
-                        email=user["email"],
-                        password=user["password"],
-                        country=user["country"]
-                        )
+        new_user = UserModel(user_id=user["id"],
+                             name=user["name"],
+                             email=user["email"],
+                             password=user["password"],
+                             country=user["country"]
+                             )
 
         self.userRepository.upsert(new_user)
 

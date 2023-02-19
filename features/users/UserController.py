@@ -1,5 +1,5 @@
-from model.UserRepository import UserRepository
-from domain.UserUseCase import UserUseCase
+from features.users.UserRepository import UserRepository
+from features.users.UserUseCase import UserUseCase
 from config import users_csv_filepath
 
 try:
@@ -26,11 +26,13 @@ def get_all_users():
 @app.route("/users", methods=["POST", "PUT"])
 def upsert_user():
     try:
-        # Obtener los valores de los campos del cuerpo de la solicitud
         user_data = request.get_json()
         new_user = userUseCase.upsert(user_data, request.method)
 
-        return jsonify({"result": "OK", "body": new_user.to_dict()}), 200
+        if request.method == "POST":
+            return jsonify({"result": "OK", "body": new_user.to_dict()}), 201
+        else:
+            return jsonify({"result": "OK", "body": new_user.to_dict()}), 200
 
     except Exception as e:
         return jsonify({"result": "KO", "body": str(e)}), 400
@@ -54,7 +56,7 @@ def delete_user(id_user: int):
         return jsonify({"result": "KO", "body": []}), 404
 
 
-@app.route("/users/commit", methods=["GET"])
+@app.route("/users/commit", methods=["POST"])
 def commit_users():
     is_ok, error_message = userUseCase.commit()
     if is_ok:

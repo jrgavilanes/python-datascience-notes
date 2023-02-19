@@ -2,7 +2,7 @@ import json
 
 import pandas as pd
 
-users_path_file = "../database/users.csv"
+users_path_file = "../../database/users.csv"
 file_separator = ";"
 
 
@@ -16,7 +16,7 @@ def user_default_values() -> dict:
     }
 
 
-class User:
+class UserModel:
     def __init__(self, user_id: int = None, name: str = None, email: str = None, password: str = None,
                  country: str = None):
         validation_errors = []
@@ -54,23 +54,33 @@ class UserRepository:
     def __init__(self, csv_file=users_path_file, sep=file_separator):
         self.csv_file = csv_file
         self.sep = sep
-        self.users_pd = pd.read_csv(filepath_or_buffer=csv_file, sep=sep)
         self.users = {}
-        for user in self.users_pd.to_dict("records"):
-            self.users[user["id"]] = user
+        try:
+            self.users_pd = pd.read_csv(filepath_or_buffer=csv_file, sep=sep)
+
+            for user in self.users_pd.to_dict("records"):
+                self.users[user["id"]] = user
+        except FileNotFoundError as e:
+            print(f"Warning: file {csv_file} does not exist. Loading empty data into memory")
+        except Exception as e:
+            print(f"Warning: {str(e)} Loading empty data into memory")
 
     def get_next_id(self) -> int:
-        return max(self.users.keys()) + 1
+        try:
+            return max(self.users.keys()) + 1
+        except:
+            return 1
 
     def get_by_id(self, record_id: int) -> dict:
         if record_id in self.users:
             return self.users[record_id].copy()
-        return None
+
+        return {}
 
     def get_all_records(self) -> dict:
         return self.users.copy()
 
-    def upsert(self, user: User) -> None:
+    def upsert(self, user: UserModel) -> None:
         self.users[user.id] = user.to_dict()
 
     def delete_by_id(self, record_id: int) -> int:
@@ -78,7 +88,7 @@ class UserRepository:
             del self.users[record_id]
             return record_id
 
-        return None
+        return 0
 
     def commit(self, csv_file=None, sep=None) -> (bool, str):
         if csv_file is None:
@@ -93,5 +103,6 @@ class UserRepository:
             csv_json.to_csv(csv_file, sep, index=False)
             self.users_pd = pd.read_csv(filepath_or_buffer=csv_file, sep=sep)
             return True, ""
+
         except Exception as e:
             return False, str(e)
