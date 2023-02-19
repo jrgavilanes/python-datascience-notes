@@ -140,18 +140,25 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "localhost:4000/users/1",
+					"raw": "localhost:{{puerto}}//users/1",
 					"host": [
 						"localhost"
 					],
-					"port": "4000",
+					"port": "{{puerto}}",
 					"path": [
+						"",
 						"users",
 						"1"
 					]
 				}
 			},
 			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "puerto",
+			"value": "4000"
 		}
 	]
 }

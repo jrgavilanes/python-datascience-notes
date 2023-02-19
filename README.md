@@ -10,6 +10,11 @@ https://codigofacilito.com/videos/crear-arreglos
     $ pip install ipython numpy     // pip install -r requirements.txt
     $ code .
 
+# Docker
+
+    docker build -t jrg_flask_api .
+    docker run -p 4000:8000 jrg_flask_api
+
 ## Notas Python
 
 en python es falso:
@@ -473,5 +478,5 @@ https://www.youtube.com/watch?v=Esdj9wlBOaI&t=1551s
     csv_json.to_csv("users.csv", sep=";", index=False)
 
 
-    
+ 
 
