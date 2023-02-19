@@ -1,4 +1,5 @@
 import json
+import threading
 
 import pandas as pd
 
@@ -57,9 +58,9 @@ class UserRepository:
         self.users = {}
         try:
             self.users_pd = pd.read_csv(filepath_or_buffer=csv_file, sep=sep)
-
             for user in self.users_pd.to_dict("records"):
                 self.users[user["id"]] = user
+
         except FileNotFoundError as e:
             print(f"Warning: file {csv_file} does not exist. Loading empty data into memory")
         except Exception as e:
@@ -90,19 +91,19 @@ class UserRepository:
 
         return 0
 
-    def commit(self, csv_file=None, sep=None) -> (bool, str):
+    def commit(self, csv_file=None, sep=None):
         if csv_file is None:
             csv_file = self.csv_file
 
         if sep is None:
             sep = self.sep
 
-        try:
+        def save_data():
             records = json.dumps(list(self.users.values()))
             csv_json = pd.read_json(records)
             csv_json.to_csv(csv_file, sep, index=False)
             self.users_pd = pd.read_csv(filepath_or_buffer=csv_file, sep=sep)
-            return True, ""
 
-        except Exception as e:
-            return False, str(e)
+        # Guardo en segundo plano
+        save_thread = threading.Thread(target=save_data)
+        save_thread.start()

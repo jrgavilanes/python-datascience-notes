@@ -58,8 +58,5 @@ def delete_user(id_user: int):
 
 @app.route("/users/commit", methods=["POST"])
 def commit_users():
-    is_ok, error_message = userUseCase.commit()
-    if is_ok:
-        return jsonify({"result": "OK", "body": "saved ok"}), 200
-    else:
-        return jsonify({"result": "KO", "body": error_message}), 500
+    userUseCase.commit()
+    return jsonify({"result": "OK", "body": "saved ok"}), 200
