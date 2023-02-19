@@ -14,13 +14,13 @@ userUseCase = UserUseCase(user_repository=UserRepository(csv_file=users_csv_file
 
 @app.route("/", methods=["GET"])
 def ping():
-    return jsonify({"message": "ve a /users"})
+    return jsonify({"body": "ve a /users"})
 
 
 @app.route("/users", methods=["GET"])
 def get_all_users():
     result = userUseCase.get_all_records()
-    return jsonify({"result": "OK", "users": result}), 200
+    return jsonify({"result": "OK", "body": result}), 200
 
 
 @app.route("/users", methods=["POST", "PUT"])
