@@ -31,6 +31,65 @@ en python es falso:
 
 ## Notas Numpy
 
+Ejemplos estadisticos
+
+    import numpy as np
+    
+    x = np.random.randint(1,11,100)
+    
+    In [34]: x.max()
+    Out[34]: 10
+    
+    In [35]: x.min()
+    Out[35]: 1
+    
+    In [36]: x.mean()
+    Out[36]: 5.39
+    
+    In [37]: x.sum()
+    Out[37]: 539
+    
+    In [41]: x.size
+    Out[41]: 100
+    
+    In [38]: x.sum()/x.size
+    Out[38]: 5.39
+    
+    In [30]: np.unique(x, return_counts=True)
+    Out[30]:
+    (array([ 1,  2,  3,  4,  5,  6,  7,  8,  9, 10]),
+     array([10, 13, 14,  6,  9, 10,  8,  9,  6, 15], dtype=int64))
+    
+    In [31]: np.unique(x, return_counts=True)[1]
+    Out[31]: array([10, 13, 14,  6,  9, 10,  8,  9,  6, 15], dtype=int64)
+    
+    In [32]: sum(np.unique(x, return_counts=True)[1])
+    Out[32]: 100
+    
+    In [48]: unique, counts = np.unique(x, return_counts=True)
+    
+    In [49]: unique
+    Out[49]: array([ 1,  2,  3,  4,  5,  6,  7,  8,  9, 10])
+    
+    In [50]: counts
+    Out[50]: array([10, 13, 14,  6,  9, 10,  8,  9,  6, 15], dtype=int64)
+    
+    In [51]: dict(zip(unique, counts))
+    Out[51]: {1: 10, 2: 13, 3: 14, 4: 6, 5: 9, 6: 10, 7: 8, 8: 9, 9: 6, 10: 15}
+    
+    
+    # varianza
+    In [42]: np.var(x)
+    Out[42]: 9.177900000000001
+    
+    
+    # desviación estandard
+    In [46]: math.sqrt(np.var(x))
+    Out[46]: 3.029504910047185
+    
+    In [47]: np.var(x)**(1/2)
+    Out[47]: 3.029504910047185
+
 Funciones básicas de arrays
 
     import numpy as np
@@ -240,6 +299,9 @@ Matrices
 
     In [92]: A[[0,2],3]
     Out[92]: array([  4, 400])
+
+
+
 
 ## Pandas
 
