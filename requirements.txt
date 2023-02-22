@@ -4,3 +4,4 @@ pandas~=1.5.3
 flask~=2.2.2
 gunicorn
 requests
+pytest
